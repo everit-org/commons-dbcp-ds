@@ -27,7 +27,10 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import javax.sql.DataSource;
+import javax.sql.XADataSource;
+import javax.transaction.TransactionManager;
 
+import org.apache.commons.dbcp.managed.BasicManagedDataSource;
 import org.apache.commons.pool.impl.GenericKeyedObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
 import org.apache.felix.scr.annotations.Activate;
@@ -43,7 +46,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
 @org.apache.felix.scr.annotations.Properties({
-        @Property(name = "dataSource.target"),
+        @Property(name = "xaDataSource.target"),
         @Property(name = Util.PROP_DEFAULT_AUTO_COMMIT, boolValue = true),
         @Property(name = Util.PROP_DEFAULT_READ_ONLY, boolValue = false),
         @Property(name = Util.PROP_DEFAULT_TRANSACTION_ISOLATION, value = Util.VALUE_READ_COMMITED, options = {
@@ -76,31 +79,43 @@ import org.osgi.framework.ServiceRegistration;
         @Property(name = Util.PROP_REMOVE_ABANDONED_TIMEOUT, intValue = 300),
         @Property(name = Util.PROP_LOG_ABANDONED, boolValue = false) })
 @Component(metatype = true, configurationFactory = true, policy = ConfigurationPolicy.REQUIRE)
-public class DataSourceComponent {
+public class ManagedDataSourceComponent {
 
     @Reference(policy = ReferencePolicy.STATIC)
-    private DataSource dataSource;
+    private XADataSource xaDataSource;
+
+    @Reference(policy = ReferencePolicy.STATIC)
+    private TransactionManager transactionManager;
 
     private ServiceRegistration<DataSource> serviceRegistration;
 
-    private BasicSimpleDataSource basicDataSource = null;
-    
-    private Map<String, Object> dataSourceServiceProperties = null;
+    private BasicManagedDataSource managedDataSource = null;
+
+    private Map<String, Object> tmServiceProperties = null;
+
+    private Map<String, Object> xaDataSourceServiceProperties = null;
 
     @Activate
     public void activate(BundleContext bundleContext, Map<String, Object> componentProperties) {
-        basicDataSource = new BasicSimpleDataSource();
-        basicDataSource.setNonPoolingDataSource(dataSource);
-        Util.applyPropertiesOnBasicDataSource(basicDataSource, componentProperties);
+        managedDataSource = new BasicManagedDataSource();
+        managedDataSource.setXaDataSourceInstance(xaDataSource);
+        managedDataSource.setTransactionManager(transactionManager);
+        Util.applyPropertiesOnBasicDataSource(managedDataSource, componentProperties);
 
         Dictionary<String, Object> serviceProperties = new Hashtable<String, Object>(componentProperties);
-        Util.addReferenceIdsToServiceProperties("dataSource", dataSourceServiceProperties, serviceProperties);
-        serviceRegistration = bundleContext.registerService(DataSource.class, basicDataSource, serviceProperties);
+        Util.addReferenceIdsToServiceProperties("xaDataSource", xaDataSourceServiceProperties, serviceProperties);
+        Util.addReferenceIdsToServiceProperties("transactionManager", tmServiceProperties, serviceProperties);
+        serviceRegistration = bundleContext.registerService(DataSource.class, managedDataSource, serviceProperties);
     }
 
-    public void bindDataSource(DataSource dataSource, Map<String, Object> dataSourceServiceProperties) {
-        this.dataSource = dataSource;
-        this.dataSourceServiceProperties = dataSourceServiceProperties;
+    public void bindXaDataSource(XADataSource xaDataSource, Map<String, Object> xaDataSourceServiceProperties) {
+        this.xaDataSource = xaDataSource;
+        this.xaDataSourceServiceProperties = xaDataSourceServiceProperties;
+    }
+
+    public void bindTransactionManager(TransactionManager transactionManager, Map<String, Object> tmServiceProperties) {
+        this.transactionManager = transactionManager;
+        this.tmServiceProperties = tmServiceProperties;
     }
 
     @Deactivate
@@ -108,9 +123,9 @@ public class DataSourceComponent {
         if (serviceRegistration != null) {
             serviceRegistration.unregister();
         }
-        if (basicDataSource != null) {
+        if (managedDataSource != null) {
             try {
-                basicDataSource.close();
+                managedDataSource.close();
             } catch (SQLException e) {
                 throw new RuntimeException("Error during closing data source at component "
                         + componentProperties.get("service.pid"));

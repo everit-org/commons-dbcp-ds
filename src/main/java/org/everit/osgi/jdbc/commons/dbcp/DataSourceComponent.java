@@ -95,7 +95,10 @@ public class DataSourceComponent {
 
         Dictionary<String, Object> serviceProperties = new Hashtable<String, Object>(componentProperties);
         Util.addReferenceIdsToServiceProperties("dataSource", dataSourceServiceProperties, serviceProperties);
-        serviceRegistration = bundleContext.registerService(DataSource.class, basicDataSource, serviceProperties);
+        
+        // Trick to solve https://issues.apache.org/jira/browse/DBCP-358
+        DataSource wrapped = new DataSourceWrapper(basicDataSource);
+        serviceRegistration = bundleContext.registerService(DataSource.class, wrapped, serviceProperties);
     }
 
     public void bindDataSource(DataSource dataSource, Map<String, Object> dataSourceServiceProperties) {

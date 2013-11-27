@@ -105,7 +105,10 @@ public class ManagedDataSourceComponent {
         Dictionary<String, Object> serviceProperties = new Hashtable<String, Object>(componentProperties);
         Util.addReferenceIdsToServiceProperties("xaDataSource", xaDataSourceServiceProperties, serviceProperties);
         Util.addReferenceIdsToServiceProperties("transactionManager", tmServiceProperties, serviceProperties);
-        serviceRegistration = bundleContext.registerService(DataSource.class, managedDataSource, serviceProperties);
+        
+        // Trick to solve https://issues.apache.org/jira/browse/DBCP-358
+        DataSource wrapped = new DataSourceWrapper(managedDataSource);
+        serviceRegistration = bundleContext.registerService(DataSource.class, wrapped, serviceProperties);
     }
 
     public void bindXaDataSource(XADataSource xaDataSource, Map<String, Object> xaDataSourceServiceProperties) {

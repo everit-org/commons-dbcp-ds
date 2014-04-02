@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    This file is part of Pooled DatataSource Components.
+    This file is part of Everit - Commons DBCP Components.
 
-    Pooled DatataSource Components is free software: you can redistribute it and/or modify
+    Everit - Commons DBCP Components is free software: you can redistribute it and/or modify
     it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Pooled DatataSource Components is distributed in the hope that it will be useful,
+    Everit - Commons DBCP Components is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU Lesser General Public License for more details.
 
     You should have received a copy of the GNU Lesser General Public License
-    along with Pooled DatataSource Components.  If not, see <http://www.gnu.org/licenses/>.
+    along with Everit - Commons DBCP Components.  If not, see <http://www.gnu.org/licenses/>.
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -30,12 +30,12 @@
 
   <groupId>org.everit.osgi</groupId>
   <artifactId>org.everit.osgi.jdbc.commons.dbcp</artifactId>
-  <version>1.0.0</version>
+  <version>2.0.0</version>
 
   <packaging>bundle</packaging>
 
-  <name>Pooled DatataSource Components</name>
-  <description>A configurable DS component that makes it possible to create XA and non-XA pooled datasource instances.</description>
+  <name>Everit - Commons DBCP Components</name>
+  <description>Configurable DS components that make it possible to create XA and non-XA pooled datasource instances via ConfigAdmin.</description>
 
   <scm>
     <connection>scm:git:git://github.com/everit-org/commons-dbcp-component.git</connection>
@@ -72,6 +72,12 @@
     <maven.compiler.target>1.5</maven.compiler.target>
   </properties>
 
+  <developers>
+    <developer>
+      <name>Everit Team</name>
+    </developer>
+  </developers>
+
   <build>
     <plugins>
       <plugin>
@@ -84,7 +90,6 @@
             <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             <Import-Package>*</Import-Package>
             <Export-Package />
-            <EOSGi-TestNum>0</EOSGi-TestNum>
           </instructions>
         </configuration>
       </plugin>
@@ -119,9 +124,22 @@
     </dependency>
 
     <dependency>
-      <groupId>org.everit.osgi.bundles</groupId>
-      <artifactId>org.everit.osgi.bundles.commons-dbcp</artifactId>
-      <version>1.4-v20140203</version>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-dbcp2</artifactId>
+      <version>2.0</version>
+    </dependency>
+
+<!-- CGLIB is only necessary because of commons-pool2. Should be removed when https://issues.apache.org/jira/browse/POOL-261 is resolved -->
+    <dependency>
+      <groupId>org.apache.servicemix.bundles</groupId>
+      <artifactId>org.apache.servicemix.bundles.cglib</artifactId>
+      <version>3.1_1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-pool2</artifactId>
+      <version>2.2</version>
     </dependency>
 
     <dependency>

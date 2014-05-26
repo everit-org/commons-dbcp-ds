@@ -30,7 +30,7 @@
 
   <groupId>org.everit.osgi</groupId>
   <artifactId>org.everit.osgi.jdbc.commons.dbcp</artifactId>
-  <version>2.0.0</version>
+  <version>2.0.1</version>
 
   <packaging>bundle</packaging>
 
@@ -126,7 +126,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-dbcp2</artifactId>
-      <version>2.0</version>
+      <version>2.0.1</version>
     </dependency>
 
 <!-- CGLIB is only necessary because of commons-pool2. Should be removed when https://issues.apache.org/jira/browse/POOL-261 is resolved -->
@@ -134,12 +134,6 @@
       <groupId>org.apache.servicemix.bundles</groupId>
       <artifactId>org.apache.servicemix.bundles.cglib</artifactId>
       <version>3.1_1</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-pool2</artifactId>
-      <version>2.2</version>
     </dependency>
 
     <dependency>
